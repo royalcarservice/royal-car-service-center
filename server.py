@@ -669,7 +669,7 @@ class Handler(BaseHTTPRequestHandler):
             return None
         conn = connect()
         try:
-            row = conn.execute("SELECT u.id, u.username, u.name, u.role, u.active, s.token, s.expires_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND u.active = 1", (token,)).fetchone()
+            row = conn.execute("SELECT u.id, u.username, u.name, u.role, u.active, s.token, s.expires_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = ? AND u.active = TRUE", (token,)).fetchone()
             if not row or row["expires_at"] < now_iso():
                 return None
             return row
@@ -819,7 +819,7 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/auth/login":
                 username = str(payload.get("username", "")).strip()
                 password = str(payload.get("password", ""))
-                row = conn.execute("SELECT * FROM users WHERE username = ? AND active = 1", (username,)).fetchone()
+                row = conn.execute("SELECT * FROM users WHERE username = ? AND active = TRUE", (username,)).fetchone()
                 if not row or not verify_password(password, row["password_hash"]):
                     return self.send_error_json("Invalid username or password", 401)
                 requested_role = str(payload.get("role", "")).strip()
