@@ -11,6 +11,7 @@ const state = {
   appointments: [],
   inventory: [],
   invoices: [],
+  customers: [],
   notifications: [],
   notificationMetrics: null,
   integrationStatus: {},
@@ -21,6 +22,7 @@ const state = {
   estimateStatus: 'awaiting',
   bookingConfirmed: false,
   apiReady: false,
+  environment: 'development',
   workOrders: [
     { id: 'WO-2026-0048', customer: 'Ananya Rao', vehicle: '2021 Honda City VX', plate: 'KA 03 MK 8271', issue: 'A/C not cooling', status: 'In progress', mechanic: 'Unassigned', eta: 'Today, 4:30 PM', total: '₹ 8,450', tone: 'purple' },
     { id: 'WO-2026-0047', customer: 'Rohan Shah', vehicle: '2018 Toyota Innova', plate: 'KA 05 MC 2190', issue: 'Brake vibration', status: 'Quality check', mechanic: 'Unassigned', eta: 'Today, 2:15 PM', total: '₹ 5,800', tone: 'blue' },
@@ -169,8 +171,15 @@ function proView() {
 function pageHeading(title, subtitle, action = '') {
   return `<div class="page-heading"><div><h1>${title}</h1><p>${subtitle}</p></div><div class="heading-actions">${action}</div></div>`;
 }
+function liveWorkspaceEmpty(items, title, subtitle, action = '') {
+  if (state.environment !== 'production' || !state.apiReady || items.length) return false;
+  return `${pageHeading(title, subtitle, action)}<section class="card empty-workspace"><div class="empty-workspace-icon">✦</div><h2>No live records yet</h2><p>This workspace is ready for Royal Car Service Center. Add your first real record to replace this empty state.</p></section>`;
+}
 
 function overviewView() {
+  const empty = liveWorkspaceEmpty(state.workOrders, 'Overview', 'Your live garage workspace is ready.', '<button class="primary-btn" data-modal="work-order">＋ New work order</button>');
+  if (empty && !state.invoices.length && !state.appointments.length) return empty;
+
   return `
     ${pageHeading('Good morning, Shiva <span style="color:var(--orange)">✦</span>', `${dateLabel()} · Here’s what’s happening at your garage today.`, '<span class="date-chip">⌄ Today, Sep 10</span><button class="primary-btn" data-modal="work-order">＋ New work order</button>')}
     <div class="kpi-grid">
@@ -222,6 +231,8 @@ function workOrderTable(items, full = true) {
 }
 
 function workOrdersView() {
+  const empty = liveWorkspaceEmpty(state.workOrders, 'Work orders', 'Manage repairs from check-in to completion.', '<button class="primary-btn" data-modal="work-order">＋ Create work order</button>');
+  if (empty) return empty;
   let items = [...state.workOrders];
   const q = state.search.toLowerCase();
   if (q) items = items.filter(x => Object.values(x).join(' ').toLowerCase().includes(q));
@@ -234,6 +245,8 @@ function workOrdersView() {
 }
 
 function scheduleView() {
+  const empty = liveWorkspaceEmpty(state.appointments, 'Schedule', 'Book and manage service appointments.', '<button class="primary-btn" data-modal="appointment">＋ New appointment</button>');
+  if (empty) return empty;
   const appts = [
     ['8:30 AM','Rohan Shah','Toyota Innova · Brake vibration','purple'], ['9:00 AM','—','Bay 4 available','green'], ['10:00 AM','Priya Menon','Kia Seltos · Periodic service','blue'], ['11:30 AM','Meera Nair','Hyundai Creta · Pickup','orange'], ['1:00 PM','Walk-in slot','Reserved for urgent repairs','green'], ['3:00 PM','Vikram Singh','Ford EcoSport · Diagnostics','purple']
   ];
@@ -243,6 +256,8 @@ function scheduleView() {
 }
 
 function customersView() {
+  const empty = liveWorkspaceEmpty(state.customers, 'Customers', 'Store customer and vehicle service history.', '<button class="primary-btn" data-modal="customer">＋ Add customer</button>');
+  if (empty) return empty;
   const customers = [
     ['Ananya Rao','ananya.rao@email.com','2021 Honda City VX','KA 03 MK 8271','₹ 18,650','Sep 10, 2026','AR'],
     ['Rohan Shah','rohan.shah@email.com','2018 Toyota Innova','KA 05 MC 2190','₹ 42,800','Sep 10, 2026','RS'],
@@ -256,6 +271,8 @@ function customersView() {
 }
 
 function inventoryView() {
+  const empty = liveWorkspaceEmpty(state.inventory, 'Inventory', 'Track parts and reorder before repairs are delayed.', '<button class="primary-btn" data-modal="part">＋ Add part</button>');
+  if (empty) return empty;
   const parts = [
     ['Front brake pads · Universal','BP-UNV-001','3','5','₹ 1,800','A-1','Low stock'], ['5W-30 Synthetic oil · 1L','OL-5W30-01','6','20','₹ 4,200','C-1','Low stock'], ['Cabin air filter · Hyundai','CF-HYU-004','2','5','₹ 1,100','D-3','Low stock'], ['0W-20 Synthetic oil · 1L','OL-0W20-01','24','20','₹ 14,400','C-1','In stock'], ['Oil filter · Assorted','OF-AST-001','18','10','₹ 2,700','B-2','In stock'], ['Denso iridium spark plug','SP-DEN-011','16','8','₹ 3,840','B-4','In stock'], ['Wiper blades · Universal','WB-UNV-001','8','5','₹ 4,000','E-1','In stock']
   ];
@@ -264,6 +281,8 @@ function inventoryView() {
 }
 
 function billingView() {
+  const empty = liveWorkspaceEmpty(state.invoices, 'Billing & financials', 'Invoices and payments will appear here after your first job.', '<button class="primary-btn" data-modal="invoice">＋ New invoice</button>');
+  if (empty) return empty;
   const f = state.financialReport || { paid_revenue: 284650, inventory_cost: 91240, estimated_gross_profit: 193410, outstanding: 28450, invoice_count: 5 };
   return `${pageHeading('Billing & financials', 'A clear view of cash flow, payments, and outstanding invoices.', '<button class="secondary-btn" data-report-action="close-day">▣ Close day</button><button class="secondary-btn" data-integration-action="export-accounting">⇩ Export CSV</button><button class="primary-btn" data-modal="invoice">＋ New invoice</button>')}
     <div class="billing-grid"><div class="card finance-card"><span>Revenue · September</span><div class="finance-value">₹ ${Number(f.paid_revenue || 0).toLocaleString('en-IN')}</div><div class="finance-foot"><strong>↑ 12.8%</strong> compared with August</div></div><div class="card finance-card"><span>Inventory costs</span><div class="finance-value">₹ ${Number(f.inventory_cost || 0).toLocaleString('en-IN')}</div><div class="finance-foot"><strong style="color:var(--blue)">32% of revenue</strong> · healthy range</div></div><div class="card finance-card"><span>Estimated gross profit</span><div class="finance-value">₹ ${Number(f.estimated_gross_profit || 0).toLocaleString('en-IN')}</div><div class="finance-foot"><strong>68% margin</strong> · +3.4% this month</div></div></div>
@@ -284,6 +303,8 @@ function marketingView() {
 }
 
 function notificationsView() {
+  const empty = liveWorkspaceEmpty(state.notifications, 'Communications', 'Customer messages will appear here once notifications are sent.', '<button class="primary-btn" data-notification-action="queue">＋ Queue message</button>');
+  if (empty) return empty;
   const metrics = state.notificationMetrics || { queued: 2, sent_today: 18, failed: 1, delivery_rate: 94 };
   const rows = state.notifications.length ? state.notifications : [
     { id: 101, type: 'Estimate approval', channel: 'WhatsApp', recipient: 'Ananya Rao', message: 'Your estimate is ready for review.', status: 'Queued', scheduled_for: 'Now', attempts: 0 },
@@ -296,6 +317,8 @@ function notificationsView() {
 }
 
 function reportsView() {
+  const empty = liveWorkspaceEmpty(state.invoices, 'Reports & insights', 'Reports will populate as your real garage records arrive.', '<button class="primary-btn" data-view="work-orders">Open work orders</button>');
+  if (empty) return empty;
   return `${pageHeading('Reports & insights', 'September 2026 · Trends that help you make the next move.', '<button class="date-chip">⌄ September 2026</button><button class="primary-btn" data-toast="Report exported as PDF">⇩ Export report</button>')}
     <div class="report-grid"><section class="card"><div class="card-header"><div><span class="card-title">Revenue trend</span><span class="card-sub">Monthly revenue · last 6 months</span></div><span class="status-pill green">↑ 12.8%</span></div><div class="bar-chart">${[['Apr','1.58L',48],['May','1.84L',58],['Jun','2.02L',66],['Jul','2.28L',74],['Aug','2.52L',84],['Sep','2.84L',100]].map((b,i)=>`<div class="chart-bar-col"><div class="chart-bar" style="height:${b[2]}%;${i===5?'background:var(--purple-dark)':''}" data-value="${b[1]}"></div><span class="chart-label">${b[0]}</span></div>`).join('')}</div></section><section class="card"><div class="card-header"><div><span class="card-title">Top services by revenue</span><span class="card-sub">September performance</span></div><a class="card-link" data-toast="Detailed service report opened">Details →</a></div><div class="insight-list"><div class="insight"><div class="insight-bulb" style="background:var(--purple-soft);color:var(--purple)">1</div><div style="flex:1"><b>Brake services</b><span><span class="full-bar" style="display:inline-block;width:70%;height:5px;margin-right:8px;vertical-align:middle"><i style="width:82%"></i></span> ₹ 62,400</span></div></div><div class="insight"><div class="insight-bulb" style="background:var(--blue-soft);color:var(--blue)">2</div><div style="flex:1"><b>Periodic maintenance</b><span><span class="full-bar" style="display:inline-block;width:70%;height:5px;margin-right:8px;vertical-align:middle"><i style="width:68%;background:var(--blue)"></i></span> ₹ 48,700</span></div></div><div class="insight"><div class="insight-bulb" style="background:var(--orange-soft);color:var(--orange)">3</div><div style="flex:1"><b>A/C & cooling</b><span><span class="full-bar" style="display:inline-block;width:70%;height:5px;margin-right:8px;vertical-align:middle"><i style="width:46%;background:var(--orange)"></i></span> ₹ 31,200</span></div></div><div class="insight"><div class="insight-bulb" style="background:var(--green-soft);color:var(--green)">4</div><div style="flex:1"><b>Diagnostics</b><span><span class="full-bar" style="display:inline-block;width:70%;height:5px;margin-right:8px;vertical-align:middle"><i style="width:39%;background:var(--green)"></i></span> ₹ 26,850</span></div></div></div></section></div>
     <div class="dashboard-grid section-gap"><section class="card"><div class="card-header"><div><span class="card-title">Workshop performance</span><span class="card-sub">Operations managed by the owner and advisor</span></div></div><div class="table-wrap"><table><thead><tr><th>Operations</th><th>Jobs closed</th><th>Avg. job time</th><th>Efficiency</th><th>Rating</th></tr></thead><tbody>${[['Workshop team','71','2.1 hrs','88%','4.6']].map(x=>`<tr><td><div class="vehicle-cell"><div class="avatar avatar-gold">WT</div><b>${x[0]}</b></div></td><td>${x[1]}</td><td class="muted">${x[2]}</td><td><span class="status-pill green">${x[3]}</span></td><td>★ ${x[4]}</td></tr>`).join('')}</tbody></table></div></section><section class="card side-stat"><h3>AI insights</h3><p>GarageAI found 3 useful patterns in your business data.</p><div class="insight" style="border-top:1px solid var(--line);padding-top:12px"><div class="insight-bulb">✦</div><div><b>Brake jobs are up 22%</b><span>Stock 8 extra pad sets before next week.</span></div></div><div class="insight"><div class="insight-bulb">✦</div><div><b>Tuesday has open capacity</b><span>Try a midweek A/C inspection offer.</span></div></div><div class="insight"><div class="insight-bulb">✦</div><div><b>3 customers need reminders</b><span>Maintenance reminders are queued.</span></div></div></section></div>`;
@@ -460,24 +483,27 @@ async function patchJson(path, body) {
 }
 async function loadApiData() {
   try {
-    const [workOrdersResponse, appointmentsResponse, inventoryResponse, invoicesResponse, configResponse, financialResponse, notificationsResponse, notificationMetricsResponse, marketingPostsResponse, marketingStatusResponse] = await Promise.all([
-      apiRequest('/api/work-orders'), apiRequest('/api/appointments'), apiRequest('/api/inventory'), apiRequest('/api/invoices'), apiRequest('/api/config/status'), apiRequest('/api/reports/financial'), apiRequest('/api/notifications'), apiRequest('/api/notifications/metrics'), apiRequest('/api/marketing/posts'), apiRequest('/api/marketing/status')
+    const [workOrdersResponse, appointmentsResponse, inventoryResponse, invoicesResponse, customersResponse, configResponse, financialResponse, notificationsResponse, notificationMetricsResponse, marketingPostsResponse, marketingStatusResponse] = await Promise.all([
+      apiRequest('/api/work-orders'), apiRequest('/api/appointments'), apiRequest('/api/inventory'), apiRequest('/api/invoices'), apiRequest('/api/customers'), apiRequest('/api/config/status'), apiRequest('/api/reports/financial'), apiRequest('/api/notifications'), apiRequest('/api/notifications/metrics'), apiRequest('/api/marketing/posts'), apiRequest('/api/marketing/status')
     ]);
     const workOrders = workOrdersResponse.ok ? await workOrdersResponse.json() : [];
     const appointments = appointmentsResponse.ok ? await appointmentsResponse.json() : [];
     const inventory = inventoryResponse.ok ? await inventoryResponse.json() : [];
     const invoices = invoicesResponse.ok ? await invoicesResponse.json() : [];
+    const customers = customersResponse.ok ? await customersResponse.json() : [];
     const config = configResponse.ok ? await configResponse.json() : null;
     const financial = financialResponse.ok ? await financialResponse.json() : null;
     const notifications = notificationsResponse.ok ? await notificationsResponse.json() : [];
     const notificationMetrics = notificationMetricsResponse.ok ? await notificationMetricsResponse.json() : null;
     const marketingPosts = marketingPostsResponse.ok ? await marketingPostsResponse.json() : [];
     const marketingStatus = marketingStatusResponse.ok ? await marketingStatusResponse.json() : null;
-    if (Array.isArray(workOrders) && workOrders.length) state.workOrders = workOrders;
+    if (Array.isArray(workOrders)) state.workOrders = workOrders;
     if (Array.isArray(appointments)) state.appointments = appointments;
     if (Array.isArray(inventory)) state.inventory = inventory;
     if (Array.isArray(invoices)) state.invoices = invoices;
+    if (Array.isArray(customers)) state.customers = customers;
     if (config?.integrations) state.integrationStatus = config.integrations;
+    if (config?.environment) state.environment = config.environment;
     if (financial) state.financialReport = financial;
     if (Array.isArray(notifications)) state.notifications = notifications;
     if (notificationMetrics) state.notificationMetrics = notificationMetrics;

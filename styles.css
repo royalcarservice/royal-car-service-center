@@ -543,6 +543,10 @@ tbody tr:hover { background: var(--purple-pale); }
 .content-studio-form .primary-btn { grid-column: 1 / -1; justify-self: start; }
 .marketing-consent { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 9px; }
 .marketing-consent input { accent-color: var(--purple); }
+.empty-workspace { min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 24px; }
+.empty-workspace-icon { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--purple-soft); color: var(--purple-dark); font-size: 22px; margin-bottom: 13px; }
+.empty-workspace h2 { margin: 0; color: var(--ink); font-size: 17px; }
+.empty-workspace p { max-width: 360px; color: var(--muted); font-size: 11px; line-height: 1.5; margin: 8px 0 0; }
 .generated-content { border-top: 1px solid var(--line); background: #fbfbfd; padding: 18px 19px; min-height: 125px; }
 .generated-placeholder { min-height: 90px; border: 1px dashed var(--line-strong); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); text-align: center; gap: 4px; }
 .generated-placeholder span { color: var(--purple); font-size: 20px; }

@@ -447,23 +447,46 @@ def init_db() -> None:
         );
         """
     )
-    seed(conn)
+    production = os.getenv("APP_ENV", "development").lower() == "production"
+    if not production:
+        seed(conn)
     ensure_users(conn)
-    ensure_notifications(conn)
+    if not production:
+        ensure_notifications(conn)
+    if os.getenv("PURGE_DEMO_DATA", "").lower() == "true":
+        purge_demo_data(conn)
     conn.commit()
     conn.close()
+
+
+def purge_demo_data(conn) -> None:
+    """One-time production cleanup for the seeded development records."""
+    for table in ("work_order_media", "estimate_approvals", "notifications", "invoices", "work_orders", "appointments", "vehicles", "customers", "parts", "employees", "audit_log", "sessions"):
+        conn.execute(f"DELETE FROM {table}")
+    conn.execute("DELETE FROM users WHERE role IN ('Mechanic', 'Apprentice')")
+    for file_path in UPLOAD_DIR.iterdir():
+        if file_path.is_file():
+            try:
+                file_path.unlink()
+            except OSError:
+                pass
+    print("Purged seeded development data; owner and advisor accounts were preserved.")
 
 
 def ensure_users(conn: sqlite3.Connection) -> None:
     if conn.execute("SELECT COUNT(*) FROM users").fetchone()[0] > 0:
         return
-    demo_users = [
+    production = os.getenv("APP_ENV", "development").lower() == "production"
+    users = [
         ("owner", "Shiva Rajkumara R", "garage123", "Owner"),
         ("advisor", "Sandhesh", "advisor123", "Advisor"),
-        ("mike", "Mike Thomas", "mike123", "Mechanic"),
-        ("apprentice", "James Lee", "apprentice123", "Apprentice"),
     ]
-    for username, name, password, role in demo_users:
+    if not production:
+        users.extend([
+            ("mike", "Mike Thomas", "mike123", "Mechanic"),
+            ("apprentice", "James Lee", "apprentice123", "Apprentice"),
+        ])
+    for username, name, password, role in users:
         conn.execute("INSERT INTO users (username, name, password_hash, role, created_at) VALUES (?, ?, ?, ?, ?)", (username, name, hash_password(password), role, now_iso()))
 
 
