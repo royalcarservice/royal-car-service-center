@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#d7a62a" />
+  <title>Royal Car Service Center — Garage Operations</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-wrap">
+        <img class="brand-logo-image" src="assets/royal-car-service-logo-transparent.png" alt="Royal Car Service Center logo" />
+        <div>
+          <div class="brand-name">Royal <span>Car Service</span></div>
+          <div class="brand-sub">Expert care every drive</div>
+        </div>
+      </div>
+      <button class="workspace-select" id="workspaceSelect">
+        <span class="workspace-dot"></span>
+        <span><b>Garage workspace</b><small>Operations view</small></span>
+        <span class="chevron">⌄</span>
+      </button>
+      <div class="nav-label">WORKSPACE</div>
+      <nav class="primary-nav" id="primaryNav">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">▦</span><span>Overview</span><span class="nav-badge subtle">⌘1</span></button>
+        <button class="nav-item" data-view="work-orders"><span class="nav-icon">▤</span><span>Work orders</span><span class="nav-badge">5</span></button>
+        <button class="nav-item" data-view="schedule"><span class="nav-icon">▣</span><span>Schedule</span></button>
+        <button class="nav-item" data-view="customers"><span class="nav-icon">♙</span><span>Customers</span></button>
+        <button class="nav-item" data-view="inventory"><span class="nav-icon">▥</span><span>Inventory</span><span class="nav-badge warning">3</span></button>
+        <button class="nav-item" data-view="billing"><span class="nav-icon">◫</span><span>Billing</span></button>
+        <button class="nav-item" data-view="notifications"><span class="nav-icon">⌁</span><span>Communications</span><span class="nav-badge warning">4</span></button>
+      </nav>
+      <div class="nav-label second-label">INSIGHTS</div>
+      <nav class="primary-nav">
+        <button class="nav-item" data-view="reports"><span class="nav-icon">⌁</span><span>Reports</span></button>
+        <button class="nav-item" data-view="marketing"><span class="nav-icon">✺</span><span>Marketing studio</span><span class="nav-live">AI</span></button>
+        <button class="nav-item" data-view="ai"><span class="nav-icon ai-spark">✦</span><span>AI assistant</span><span class="nav-live">LIVE</span></button>
+        <button class="nav-item" data-view="settings"><span class="nav-icon">⚙</span><span>Settings & integrations</span></button>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-help">
+        <div class="help-icon">?</div>
+        <div><b>Need a hand?</b><span>Ask GarageAI anything</span></div>
+        <button data-view="ai" aria-label="Open help">→</button>
+      </div>
+      <button class="user-card" id="userCard" title="Switch account / sign out">
+        <div class="avatar avatar-gold">SR</div>
+        <div class="user-copy"><b>Shiva Rajkumara R</b><span>Owner · Royal Car Service</span></div>
+        <span class="more">•••</span>
+      </button>
+    </aside>
+
+    <main class="main-panel">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu">☰</button>
+        <div class="breadcrumbs"><span>Royal Car Service Center</span><i>/</i><b id="breadcrumbCurrent">Overview</b></div>
+        <div class="top-actions">
+          <div class="pro-mode-label"><span class="status-dot green"></span> GarageAI Pro</div>
+          <button class="icon-btn" id="searchBtn" aria-label="Search">⌕</button>
+          <button class="icon-btn notification-btn" id="notificationBtn" aria-label="Notifications">♢<span></span></button>
+          <button class="top-avatar avatar avatar-gold">SR</button>
+        </div>
+      </header>
+      <div id="content" class="content"></div>
+    </main>
+  </div>
+  <div id="authRoot"></div>
+  <div id="modalRoot"></div>
+  <div id="toastRoot" class="toast-root"></div>
+  <script src="app.js?v=20260911-7"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: garageai
+      POSTGRES_USER: garageai
+      POSTGRES_PASSWORD: change-me-before-production
+    volumes:
+      - garageai-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U garageai -d garageai"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      PORT: 4173
+      DATABASE_URL: postgresql://garageai:change-me-before-production@db:5432/garageai
+      SEED_DEMO_USERS: "true"
+      APP_PUBLIC_URL: http://localhost:4173
+    volumes:
+      - garageai-uploads:/app/uploads
+    ports:
+      - "4173:4173"
+
+volumes:
+  garageai-postgres:
+  garageai-uploads:

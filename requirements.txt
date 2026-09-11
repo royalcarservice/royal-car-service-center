@@ -1,0 +1,4 @@
+# Development API uses Python's standard library only.
+# Install these packages for the production PostgreSQL migration and deployment:
+psycopg[binary]>=3.2,<4
+python-dotenv>=1.0,<2
